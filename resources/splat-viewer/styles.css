@@ -1,0 +1,147 @@
+.splat-viewer-root {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	width: min(100%, 1040px);
+	margin: 0 auto;
+	padding: 12px;
+	border: 1px solid #d4d4d8;
+	border-radius: 14px;
+	background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.splat-viewer-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+}
+
+.splat-viewer-title {
+	font-size: 16px;
+	font-weight: 600;
+	color: #0f172a;
+}
+
+.splat-viewer-subtitle {
+	font-size: 12px;
+	color: #475569;
+}
+
+.splat-viewer-toolbar {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.splat-viewer-canvas-wrapper {
+	position: relative;
+	width: 100%;
+	height: min(70vh, 560px);
+	min-height: 320px;
+	border: 1px solid #cbd5e1;
+	border-radius: 12px;
+	overflow: hidden;
+	background: radial-gradient(circle at 40% 20%, #f8fafc, #e2e8f0);
+}
+
+.splat-viewer-canvas {
+	position: absolute;
+	inset: 0;
+}
+
+.splat-viewer-loading-overlay,
+.splat-viewer-error-overlay {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+	background: rgba(248, 250, 252, 0.9);
+	font-size: 14px;
+	color: #334155;
+	text-align: center;
+}
+
+.splat-viewer-error-overlay {
+	color: #b91c1c;
+}
+
+.splat-viewer-panel {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px;
+}
+
+.splat-viewer-field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.splat-viewer-label {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #64748b;
+}
+
+.splat-viewer-select,
+.splat-viewer-input {
+	height: 34px;
+	padding: 0 10px;
+	font-size: 14px;
+	border: 1px solid #cbd5e1;
+	border-radius: 8px;
+	background: #ffffff;
+	color: #0f172a;
+}
+
+.splat-viewer-buttons {
+	display: flex;
+	gap: 8px;
+	align-items: flex-end;
+}
+
+.splat-viewer-button {
+	height: 34px;
+	padding: 0 12px;
+	border: 1px solid #94a3b8;
+	border-radius: 8px;
+	background: #f8fafc;
+	color: #0f172a;
+	font-size: 13px;
+	cursor: pointer;
+}
+
+.splat-viewer-button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.splat-viewer-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	font-size: 12px;
+	color: #334155;
+}
+
+.splat-viewer-meta-item {
+	padding: 4px 8px;
+	border-radius: 999px;
+	background: #e2e8f0;
+}
+
+@media (max-width: 768px) {
+	.splat-viewer-panel {
+		grid-template-columns: 1fr;
+	}
+
+	.splat-viewer-canvas-wrapper {
+		height: 50vh;
+		min-height: 280px;
+	}
+}

@@ -1,0 +1,175 @@
+.splat-upload-root {
+	font-family:
+		"IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+	padding: 16px;
+	border: 1px solid #dadce0;
+	border-radius: 14px;
+	background: linear-gradient(160deg, #f7f9fb 0%, #eef3f7 100%);
+	color: #1f2933;
+}
+
+.splat-upload-root.splat-upload-theme-dark {
+	border-color: #2b3340;
+	background: linear-gradient(160deg, #171d26 0%, #111821 100%);
+	color: #d8e0ea;
+}
+
+.splat-upload-heading {
+	margin: 0 0 6px;
+	font-size: 18px;
+	font-weight: 700;
+}
+
+.splat-upload-subtitle {
+	margin: 0 0 14px;
+	font-size: 13px;
+	opacity: 0.82;
+}
+
+.splat-upload-form {
+	display: grid;
+	gap: 10px;
+}
+
+.splat-upload-label {
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	opacity: 0.8;
+}
+
+.splat-upload-input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.splat-upload-file-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	width: fit-content;
+	background: #0f6cbd;
+	color: #ffffff;
+	border: 1px solid #0a4e89;
+	border-radius: 10px;
+	padding: 9px 14px;
+	font-size: 13px;
+	font-weight: 700;
+	letter-spacing: 0.01em;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgb(15 108 189 / 22%);
+}
+
+.splat-upload-file-button:hover {
+	background: #0c5a9d;
+}
+
+.splat-upload-file-button[aria-disabled="true"] {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+.splat-upload-selected-file {
+	font-size: 12px;
+	opacity: 0.82;
+	word-break: break-word;
+}
+
+.splat-upload-theme-dark .splat-upload-file-button {
+	background: #2d8cff;
+	border-color: #1f67b7;
+	color: #eaf3ff;
+}
+
+.splat-upload-theme-dark .splat-upload-file-button:hover {
+	background: #2478db;
+}
+
+.splat-upload-button {
+	background: #1e88e5;
+	color: #fff;
+	border: none;
+	border-radius: 8px;
+	padding: 8px 12px;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.splat-upload-button:hover:enabled {
+	background: #146bb8;
+}
+
+.splat-upload-button:disabled {
+	cursor: not-allowed;
+	opacity: 0.55;
+}
+
+.splat-upload-status {
+	margin-top: 10px;
+	font-size: 13px;
+}
+
+.splat-upload-status.splat-upload-status-error {
+	color: #c62828;
+}
+
+.splat-upload-status.splat-upload-status-success {
+	color: #1b7f46;
+}
+
+.splat-upload-inline-viewer-section {
+	position: relative;
+	margin-top: 14px;
+	border: 1px solid rgb(26 38 52 / 16%);
+	border-radius: 12px;
+	background: rgb(0 0 0 / 6%);
+	overflow: hidden;
+}
+
+.splat-upload-inline-viewer-title {
+	padding: 9px 10px;
+	font-size: 12px;
+	font-weight: 700;
+	background: rgb(255 255 255 / 52%);
+	border-bottom: 1px solid rgb(26 38 52 / 12%);
+}
+
+.splat-upload-inline-viewer-frame {
+	width: 100%;
+	height: 360px;
+}
+
+.splat-upload-inline-viewer-overlay {
+	position: absolute;
+	inset: 42px 0 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgb(14 18 24 / 52%);
+	color: #e8eef7;
+	font-size: 13px;
+}
+
+.splat-upload-inline-viewer-overlay.splat-upload-inline-viewer-overlay-error {
+	color: #ffb4b4;
+}
+
+.splat-upload-theme-dark .splat-upload-inline-viewer-section {
+	border-color: rgb(184 212 243 / 18%);
+	background: rgb(5 8 12 / 32%);
+}
+
+.splat-upload-theme-dark .splat-upload-inline-viewer-title {
+	background: rgb(9 14 20 / 76%);
+	border-bottom-color: rgb(184 212 243 / 18%);
+}
