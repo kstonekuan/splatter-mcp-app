@@ -32,7 +32,11 @@ function parseByteLimit(
 async function downloadBytesWithLimit(
 	resolvedSourceUrl: string,
 	maximumAllowedBytes: number,
-): Promise<{ bytes: Uint8Array; mimeType: string | null }> {
+): Promise<{
+	bytes: Uint8Array;
+	mimeType: string | null;
+	filename: string | undefined;
+}> {
 	const response = await fetch(resolvedSourceUrl);
 	if (!response.ok) {
 		throw new Error(
@@ -61,9 +65,15 @@ async function downloadBytesWithLimit(
 		);
 	}
 
+	const filenameFromContentDisposition =
+		parseFileNameFromContentDispositionHeader(
+			response.headers.get("content-disposition"),
+		);
+
 	return {
 		bytes: downloadedBytes,
 		mimeType: response.headers.get("content-type"),
+		filename: filenameFromContentDisposition,
 	};
 }
 
@@ -289,6 +299,58 @@ function deriveFilenameFromSourceUrl(
 	}
 }
 
+function inferExtensionFromMimeType(
+	mimeTypeValue: string | null,
+): string | undefined {
+	if (!mimeTypeValue) {
+		return undefined;
+	}
+
+	const normalizedMimeType = mimeTypeValue.split(";")[0]?.trim().toLowerCase();
+	switch (normalizedMimeType) {
+		case "image/jpeg":
+			return ".jpg";
+		case "image/png":
+			return ".png";
+		case "image/webp":
+			return ".webp";
+		case "image/heic":
+			return ".heic";
+		case "image/heif":
+			return ".heif";
+		case "image/gif":
+			return ".gif";
+		case "image/bmp":
+			return ".bmp";
+		case "image/tiff":
+			return ".tiff";
+		case "image/avif":
+			return ".avif";
+		case "application/octet-stream":
+			return undefined;
+		default:
+			return undefined;
+	}
+}
+
+function ensureFilenameHasExtension(
+	resolvedFilename: string,
+	mimeTypeValue: string | null,
+	fallbackExtension: string,
+): string {
+	const normalizedFilename = resolvedFilename.trim();
+	if (normalizedFilename.length === 0) {
+		return `uploaded${fallbackExtension}`;
+	}
+	if (/\.[A-Za-z0-9]+$/.test(normalizedFilename)) {
+		return normalizedFilename;
+	}
+
+	const inferredExtension =
+		inferExtensionFromMimeType(mimeTypeValue) ?? fallbackExtension;
+	return `${normalizedFilename}${inferredExtension}`;
+}
+
 function validatePlyBytes(plyBytes: Uint8Array): void {
 	validateLikelyGaussianSplatPly(plyBytes);
 }
@@ -355,7 +417,7 @@ async function resolveInputSourceBytes(
 	return {
 		bytes: downloadedPayload.bytes,
 		mimeType: downloadedPayload.mimeType,
-		filename: undefined,
+		filename: downloadedPayload.filename,
 	};
 }
 
@@ -417,7 +479,11 @@ export async function resolveImageInputBytes(
 		deriveFilenameFromSourceUrl(resolvedSourceUrl, "uploaded-image.jpg");
 	return {
 		bytes: downloadedPayload.bytes,
-		resolvedFilename,
+		resolvedFilename: ensureFilenameHasExtension(
+			resolvedFilename,
+			downloadedPayload.mimeType,
+			".jpg",
+		),
 		resolvedMimeType: downloadedPayload.mimeType,
 		resolvedSourceUrl,
 	};

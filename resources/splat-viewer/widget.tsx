@@ -41,12 +41,50 @@ function formatBytes(byteCount: number): string {
 	return `${megabyteCount.toFixed(2)} MB`;
 }
 
+interface WidgetErrorReportContext {
+	assetUrl: string;
+	displayName: string;
+	additionalContext?: Record<string, unknown>;
+}
+
+async function reportWidgetErrorToServer(
+	eventName: string,
+	errorMessage: string,
+	errorReportContext: WidgetErrorReportContext,
+): Promise<void> {
+	try {
+		await fetch("/diagnostics/widget-error", {
+			method: "POST",
+			headers: {
+				"content-type": "application/json",
+			},
+			body: JSON.stringify({
+				widgetName: "splat-viewer",
+				eventName,
+				errorMessage,
+				assetUrl: errorReportContext.assetUrl,
+				displayName: errorReportContext.displayName,
+				additionalContext: errorReportContext.additionalContext,
+			}),
+		});
+	} catch (errorValue) {
+		console.error("[splat-viewer] failed to report widget error", {
+			eventName,
+			errorMessage,
+			reportingErrorMessage:
+				errorValue instanceof Error ? errorValue.message : String(errorValue),
+		});
+	}
+}
+
 export default function SplatViewerWidget(): React.ReactElement {
 	const { props, isPending, displayMode, requestDisplayMode } =
 		useWidget<SplatViewerProps>();
 	const activeTheme = useWidgetTheme();
 	const viewerContainerElementReference = useRef<HTMLDivElement | null>(null);
 	const viewerInstanceReference = useRef<GaussianViewer | null>(null);
+	const latestAssetUrlReference = useRef<string>("");
+	const latestDisplayNameReference = useRef<string>("");
 
 	const [viewerErrorMessage, setViewerErrorMessage] = useState<string | null>(
 		null,
@@ -73,6 +111,11 @@ export default function SplatViewerWidget(): React.ReactElement {
 		DEFAULT_TRAJECTORY_PARAMS.numRepeats,
 	);
 
+	if (!isPending) {
+		latestAssetUrlReference.current = props.plyAssetUrl;
+		latestDisplayNameReference.current = props.displayName;
+	}
+
 	useEffect(() => {
 		if (
 			!viewerContainerElementReference.current ||
@@ -90,6 +133,19 @@ export default function SplatViewerWidget(): React.ReactElement {
 			onError: (errorValue: Error) => {
 				setIsModelLoading(false);
 				setViewerErrorMessage(errorValue.message);
+				console.error("[splat-viewer] gaussian viewer error", {
+					errorMessage: errorValue.message,
+					assetUrl: latestAssetUrlReference.current,
+					displayName: latestDisplayNameReference.current,
+				});
+				void reportWidgetErrorToServer(
+					"gaussian-viewer-error",
+					errorValue.message,
+					{
+						assetUrl: latestAssetUrlReference.current,
+						displayName: latestDisplayNameReference.current,
+					},
+				);
 			},
 			onTrajectoryStateChange: (newStateValue) => {
 				setPlayerState(newStateValue);
@@ -116,8 +172,9 @@ export default function SplatViewerWidget(): React.ReactElement {
 			try {
 				const response = await fetch(props.plyAssetUrl);
 				if (!response.ok) {
+					const responseBodyPreview = (await response.text()).slice(0, 400);
 					throw new Error(
-						`Failed to fetch PLY asset: HTTP ${response.status}.`,
+						`Failed to fetch PLY asset: HTTP ${response.status}. ${responseBodyPreview}`,
 					);
 				}
 				const plyBlob = await response.blob();
@@ -142,12 +199,25 @@ export default function SplatViewerWidget(): React.ReactElement {
 				}
 			} catch (errorValue) {
 				if (!isCancelled) {
-					setViewerErrorMessage(
+					const normalizedErrorMessage =
 						errorValue instanceof Error
 							? errorValue.message
-							: "Unknown error while loading PLY model.",
-					);
+							: "Unknown error while loading PLY model.";
+					setViewerErrorMessage(normalizedErrorMessage);
 					setIsModelLoading(false);
+					console.error("[splat-viewer] load failed", {
+						errorMessage: normalizedErrorMessage,
+						assetUrl: props.plyAssetUrl,
+						displayName: props.displayName,
+					});
+					void reportWidgetErrorToServer(
+						"load-ply-failed",
+						normalizedErrorMessage,
+						{
+							assetUrl: props.plyAssetUrl,
+							displayName: props.displayName,
+						},
+					);
 				}
 			}
 		};

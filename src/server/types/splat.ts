@@ -46,7 +46,7 @@ export const splatViewerPropsSchema = z.object({
 export const viewPlySplatInputSchema = z
 	.object({
 		sourceType: allowedSplatSourceTypeSchema.describe(
-			"Where to load the PLY file from: chatgpt_upload for attachment references, url for direct URLs. If no URL/attachment exists yet, use open-ply-upload first.",
+			"Where to load the PLY file from: chatgpt_upload for attachment references, url for direct URLs. If no source exists yet, use open-ply-upload and upload a .ply.",
 		),
 		uploadReference: uploadReferenceSchema.optional(),
 		plyUrl: z
@@ -85,7 +85,7 @@ export const viewPlySplatInputSchema = z
 export const generateSplatFromImageInputSchema = z
 	.object({
 		sourceType: allowedSplatSourceTypeSchema.describe(
-			"Where to load the source image from: chatgpt_upload for attachment references, url for direct URLs.",
+			"Where to load the source image from: chatgpt_upload for attachment references, url for direct URLs. If no source exists yet, use open-ply-upload and upload an image.",
 		),
 		uploadReference: uploadReferenceSchema.optional(),
 		imageUrl: z
@@ -99,7 +99,7 @@ export const generateSplatFromImageInputSchema = z
 			.optional()
 			.describe("Optional human-readable name to show in the widget header."),
 		gpuTier: allowedGpuTierSchema
-			.default("a10")
+			.default("l4")
 			.describe("Modal GPU tier to use for SHARP inference."),
 	})
 	.superRefine((inputValue, context) => {
@@ -143,7 +143,7 @@ export interface ResolvedInputBytes {
 	resolvedSourceUrl: string;
 }
 
-export interface PythonSplatGenerationResult {
+export interface GeneratedSplatResult {
 	outputFilename: string;
 	plyBytes: Uint8Array;
 	elapsedMs: number;

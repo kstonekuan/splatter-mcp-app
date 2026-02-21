@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { error, type MCPServer, text, widget } from "mcp-use/server";
 import { resolvePlyInputBytes } from "../services/chatgptFileResolver";
 import { summarizePlyMetadata } from "../services/plyMetadataSummary";
+import { logSplatInfo } from "../services/splatLogger";
 import { temporaryArtifactStore } from "../services/tempArtifactStore";
 import {
 	type SplatViewerProps,
@@ -27,7 +28,7 @@ export function registerViewPlySplatTool(serverInstance: MCPServer): void {
 		{
 			name: "view-ply-splat",
 			description:
-				"Render a .ply gaussian splat when a source is already available (URL or attachment reference). If the user has no URL and wants to upload a local file, call open-ply-upload instead.",
+				"Render a .ply gaussian splat when a source is already available (URL or attachment reference). If the user has no source yet, call open-ply-upload so they can upload a local .ply.",
 			schema: viewPlySplatInputSchema,
 			_meta: {
 				"openai/fileParams": ["uploadReference"],
@@ -54,6 +55,12 @@ export function registerViewPlySplatTool(serverInstance: MCPServer): void {
 						resolvedInputBytes.resolvedMimeType ?? "application/octet-stream",
 						displayName,
 					);
+				logSplatInfo("view-tool-artifact-created", {
+					artifactId: storedArtifact.artifactId,
+					displayName: storedArtifact.displayName,
+					fileSizeBytes: storedArtifact.fileSizeBytes,
+					sourceType: toolInputValue.sourceType,
+				});
 
 				const viewerProps: SplatViewerProps = {
 					viewerSessionId: randomUUID(),

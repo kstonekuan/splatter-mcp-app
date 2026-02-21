@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import binascii
 import logging
+import re
 import subprocess
 import time
 from base64 import b64decode, b64encode
@@ -159,7 +160,10 @@ def get_predict_function_for_gpu_tier(gpu_tier: AllowedGpuTier):
 
 def _predict_with_sharp_cli(image_bytes: bytes, filename: str) -> tuple[str, bytes]:
     model_checkpoint_path = _ensure_model_checkpoint_cached()
-    input_filename = Path(filename).name or "uploaded-image.jpg"
+    input_filename = _normalize_input_filename_for_sharp(
+        raw_filename=filename,
+        image_bytes=image_bytes,
+    )
 
     with TemporaryDirectory(prefix="sharp-inference-") as temporary_directory_path_string:
         temporary_directory_path = Path(temporary_directory_path_string)
@@ -196,17 +200,173 @@ def _predict_with_sharp_cli(image_bytes: bytes, filename: str) -> tuple[str, byt
                 f"stderr:\n{completed_process.stderr}"
             )
 
-        default_output_path = output_directory_path / f"{input_image_path.stem}.ply"
-        if default_output_path.exists():
-            return default_output_path.name, default_output_path.read_bytes()
-
-        matching_ply_paths = sorted(output_directory_path.glob("*.ply"))
-        if not matching_ply_paths:
+        selected_output_path = _resolve_generated_ply_output_path(
+            output_directory_path=output_directory_path,
+            temporary_directory_path=temporary_directory_path,
+            expected_output_stem=input_image_path.stem,
+            command_stdout=completed_process.stdout,
+            command_stderr=completed_process.stderr,
+        )
+        if selected_output_path is None:
+            output_directory_tree = _format_directory_tree(output_directory_path)
+            temporary_directory_tree = _format_directory_tree(temporary_directory_path)
             raise RuntimeError(
-                "SHARP prediction did not produce a .ply output file in the output directory."
+                "SHARP prediction did not produce a .ply output file.\n"
+                f"Output directory contents:\n{output_directory_tree}\n"
+                f"Temporary directory contents:\n{temporary_directory_tree}\n"
+                f"stdout:\n{completed_process.stdout}\n"
+                f"stderr:\n{completed_process.stderr}"
             )
-        selected_output_path = matching_ply_paths[0]
+
         return selected_output_path.name, selected_output_path.read_bytes()
+
+
+def _normalize_input_filename_for_sharp(raw_filename: str, image_bytes: bytes) -> str:
+    sanitized_input_filename = Path(raw_filename).name.strip()
+    if not sanitized_input_filename:
+        sanitized_input_filename = "uploaded-image"
+
+    input_stem = Path(sanitized_input_filename).stem
+    existing_suffix = Path(sanitized_input_filename).suffix.strip()
+    if existing_suffix:
+        return sanitized_input_filename
+
+    inferred_suffix = _infer_image_suffix_from_image_bytes(image_bytes)
+    return f"{input_stem}{inferred_suffix}"
+
+
+def _infer_image_suffix_from_image_bytes(image_bytes: bytes) -> str:
+    if len(image_bytes) >= 3 and image_bytes[:3] == b"\xff\xd8\xff":
+        return ".jpg"
+    if len(image_bytes) >= 8 and image_bytes[:8] == b"\x89PNG\r\n\x1a\n":
+        return ".png"
+    if len(image_bytes) >= 6 and image_bytes[:6] in {b"GIF87a", b"GIF89a"}:
+        return ".gif"
+    if len(image_bytes) >= 2 and image_bytes[:2] == b"BM":
+        return ".bmp"
+    if len(image_bytes) >= 4 and image_bytes[:4] in {b"II*\x00", b"MM\x00*"}:
+        return ".tiff"
+    if len(image_bytes) >= 12 and image_bytes[0:4] == b"RIFF" and image_bytes[8:12] == b"WEBP":
+        return ".webp"
+    if len(image_bytes) >= 12 and image_bytes[4:8] == b"ftyp":
+        major_brand = image_bytes[8:12]
+        if major_brand in {
+            b"heic",
+            b"heix",
+            b"hevc",
+            b"hevx",
+            b"mif1",
+            b"msf1",
+        }:
+            return ".heic"
+        if major_brand in {b"avif", b"avis"}:
+            return ".avif"
+    return ".jpg"
+
+
+def _resolve_generated_ply_output_path(
+    output_directory_path: Path,
+    temporary_directory_path: Path,
+    expected_output_stem: str,
+    command_stdout: str,
+    command_stderr: str,
+) -> Path | None:
+    exact_expected_output_path = output_directory_path / f"{expected_output_stem}.ply"
+    if exact_expected_output_path.exists():
+        return exact_expected_output_path
+
+    output_directory_candidates = _collect_case_insensitive_ply_paths(output_directory_path)
+    if output_directory_candidates:
+        return _select_preferred_ply_path(
+            candidate_output_paths=output_directory_candidates,
+            expected_output_stem=expected_output_stem,
+        )
+
+    temporary_directory_candidates = _collect_case_insensitive_ply_paths(temporary_directory_path)
+    if temporary_directory_candidates:
+        return _select_preferred_ply_path(
+            candidate_output_paths=temporary_directory_candidates,
+            expected_output_stem=expected_output_stem,
+        )
+
+    output_path_from_logs = _extract_ply_path_from_command_logs(
+        command_stdout=command_stdout,
+        command_stderr=command_stderr,
+    )
+    if output_path_from_logs and output_path_from_logs.exists():
+        return output_path_from_logs
+
+    return None
+
+
+def _collect_case_insensitive_ply_paths(search_directory_path: Path) -> list[Path]:
+    if not search_directory_path.exists():
+        return []
+    return sorted(
+        (
+            candidate_file_path
+            for candidate_file_path in search_directory_path.rglob("*")
+            if candidate_file_path.is_file() and candidate_file_path.suffix.lower() == ".ply"
+        ),
+        key=lambda candidate_file_path: str(candidate_file_path),
+    )
+
+
+def _select_preferred_ply_path(
+    candidate_output_paths: list[Path],
+    expected_output_stem: str,
+) -> Path:
+    expected_stem_matches = [
+        candidate_output_path
+        for candidate_output_path in candidate_output_paths
+        if candidate_output_path.stem == expected_output_stem
+    ]
+    if expected_stem_matches:
+        return expected_stem_matches[0]
+
+    newest_candidate_output_path = max(
+        candidate_output_paths,
+        key=lambda candidate_output_path: candidate_output_path.stat().st_mtime,
+    )
+    return newest_candidate_output_path
+
+
+def _extract_ply_path_from_command_logs(
+    command_stdout: str,
+    command_stderr: str,
+) -> Path | None:
+    command_log_text = f"{command_stdout}\n{command_stderr}"
+    for log_line in command_log_text.splitlines():
+        normalized_log_line = log_line.strip().strip("\"'")
+        if normalized_log_line.lower().endswith(".ply"):
+            candidate_output_path = Path(normalized_log_line)
+            if candidate_output_path.exists():
+                return candidate_output_path
+
+        regex_match = re.search(r"(/[^\s\"']+\.ply)\b", normalized_log_line, re.IGNORECASE)
+        if regex_match:
+            candidate_output_path = Path(regex_match.group(1))
+            if candidate_output_path.exists():
+                return candidate_output_path
+
+    return None
+
+
+def _format_directory_tree(root_directory_path: Path) -> str:
+    if not root_directory_path.exists():
+        return f"(missing directory: {root_directory_path})"
+
+    listed_relative_paths: list[str] = []
+    for candidate_path in sorted(root_directory_path.rglob("*")):
+        try:
+            relative_path_string = str(candidate_path.relative_to(root_directory_path))
+        except ValueError:
+            relative_path_string = str(candidate_path)
+        listed_relative_paths.append(relative_path_string)
+
+    if not listed_relative_paths:
+        return "(empty)"
+    return "\n".join(listed_relative_paths)
 
 
 def _ensure_model_checkpoint_cached() -> Path:

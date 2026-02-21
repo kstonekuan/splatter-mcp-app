@@ -15,6 +15,13 @@ const DEFAULT_ARTIFACT_TTL_SECONDS = 3600;
 const CLEANUP_INTERVAL_MILLISECONDS = 60_000;
 const ARTIFACT_METADATA_FILE_SUFFIX = ".meta.json";
 
+function isMissingFileSystemEntryError(errorValue: unknown): boolean {
+	if (!(errorValue instanceof Error)) {
+		return false;
+	}
+	return "code" in errorValue && errorValue.code === "ENOENT";
+}
+
 function parsePositiveIntegerEnvironmentVariable(
 	environmentVariableValue: string | undefined,
 	fallbackValue: number,
@@ -122,8 +129,16 @@ export class TemporaryArtifactStore {
 			return null;
 		}
 
-		const artifactBuffer = await readFile(storedArtifact.absoluteFilePath);
-		return new Uint8Array(artifactBuffer);
+		try {
+			const artifactBuffer = await readFile(storedArtifact.absoluteFilePath);
+			return new Uint8Array(artifactBuffer);
+		} catch (readArtifactErrorValue) {
+			if (isMissingFileSystemEntryError(readArtifactErrorValue)) {
+				this.artifactRegistryById.delete(artifactIdentifier);
+				return null;
+			}
+			throw readArtifactErrorValue;
+		}
 	}
 
 	public async deleteArtifact(artifactIdentifier: string): Promise<void> {
@@ -148,7 +163,8 @@ export class TemporaryArtifactStore {
 			}
 		}
 
-		const filesInArtifactDirectory = await readdir(this.artifactDirectoryPath);
+		const filesInArtifactDirectory =
+			await this.readArtifactDirectoryFileNames();
 		for (const fileName of filesInArtifactDirectory) {
 			if (!fileName.endsWith(ARTIFACT_METADATA_FILE_SUFFIX)) {
 				continue;
@@ -191,9 +207,28 @@ export class TemporaryArtifactStore {
 		}
 
 		this.cleanupTimer = setInterval(() => {
-			void this.deleteExpiredArtifacts();
+			void this.deleteExpiredArtifacts().catch((cleanupErrorValue) => {
+				console.error("[TemporaryArtifactStore] cleanup failed", {
+					cleanupErrorMessage:
+						cleanupErrorValue instanceof Error
+							? cleanupErrorValue.message
+							: String(cleanupErrorValue),
+				});
+			});
 		}, CLEANUP_INTERVAL_MILLISECONDS);
 		this.cleanupTimer.unref();
+	}
+
+	private async readArtifactDirectoryFileNames(): Promise<string[]> {
+		try {
+			return await readdir(this.artifactDirectoryPath);
+		} catch (readDirectoryErrorValue) {
+			if (!isMissingFileSystemEntryError(readDirectoryErrorValue)) {
+				throw readDirectoryErrorValue;
+			}
+			await mkdir(this.artifactDirectoryPath, { recursive: true });
+			return [];
+		}
 	}
 
 	private buildMetadataFilePath(artifactIdentifier: string): string {
@@ -258,7 +293,8 @@ export class TemporaryArtifactStore {
 	}
 
 	private async hydrateArtifactRegistryFromDisk(): Promise<void> {
-		const filesInArtifactDirectory = await readdir(this.artifactDirectoryPath);
+		const filesInArtifactDirectory =
+			await this.readArtifactDirectoryFileNames();
 		for (const fileName of filesInArtifactDirectory) {
 			if (!fileName.endsWith(ARTIFACT_METADATA_FILE_SUFFIX)) {
 				continue;

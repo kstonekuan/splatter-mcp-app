@@ -4,9 +4,9 @@
 
 This MCP server includes:
 
-- `open-ply-upload`: open a widget that uploads `.ply` directly to this MCP server, then opens the viewer
+- `open-ply-upload`: open a widget that uploads either a `.ply` or source image directly to this MCP server, then renders/generates
 - `view-ply-splat`: render an uploaded or URL-based `.ply` file in an interactive widget
-- `generate-splat-from-image`: send one image to a Python service that forwards inference to Modal, then render the returned `.ply`
+- `generate-splat-from-image`: send one image directly to a Modal endpoint, then render the returned `.ply`
 
 ## TypeScript Server
 
@@ -20,24 +20,23 @@ The inspector URL is printed at startup (look for `[INSPECTOR]`), usually
 automatically selects the next available port.
 
 For direct local file uploads in ChatGPT, call `open-ply-upload` and use the
-widget file picker. This bypasses ChatGPT file-ID resolution and uploads
-straight to `POST /uploads/ply` on this server.
+widget file picker. It accepts:
 
-## Python Inference Service (Stage 2)
+- `.ply` uploads: stored and rendered directly
+- image uploads: stored, then passed to `generate-splat-from-image`
 
-```bash
-cd services/sharp-inference
-uv sync
-uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8001
-```
+This bypasses ChatGPT file-ID resolution and uploads straight to
+`POST /uploads/asset` on this server.
 
-Environment variables:
+## Modal Endpoint Configuration
 
-- `SHARP_MODAL_ENDPOINT_URL` (required for real inference)
-- `SHARP_MODAL_TIMEOUT_SECONDS` (optional, default `300`)
-- `SHARP_ALLOW_MOCK_INFERENCE` (optional, default `false`)
+Environment variables for the TypeScript MCP server:
 
-The TypeScript server calls `POST /v1/generate-splat` on `PYTHON_INFERENCE_BASE_URL` (default `http://127.0.0.1:8001`).
+- `SHARP_MODAL_ENDPOINT_URL` (required): full URL to the deployed Modal `generate_splat_from_image` endpoint
+- `SHARP_MODAL_TIMEOUT_MS` (optional, default `300000`)
+- `SHARP_MODAL_TIMEOUT_SECONDS` (optional compatibility fallback if `SHARP_MODAL_TIMEOUT_MS` is unset, default `300`)
+
+The TypeScript server calls `SHARP_MODAL_ENDPOINT_URL` directly.
 
 Deploy the Modal backend endpoint:
 
