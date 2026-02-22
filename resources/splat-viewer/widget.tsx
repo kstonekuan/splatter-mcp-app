@@ -1,3 +1,4 @@
+import { LoadingIndicator } from "@openai/apps-sdk-ui/components/Indicator";
 import {
 	McpUseProvider,
 	useWidget,
@@ -45,6 +46,24 @@ interface WidgetErrorReportContext {
 	assetUrl: string;
 	displayName: string;
 	additionalContext?: Record<string, unknown>;
+}
+
+function ViewerLoadingMessage({
+	label,
+}: {
+	label: string;
+}): React.ReactElement {
+	return (
+		<div className="splat-viewer-loading-content">
+			<LoadingIndicator
+				aria-hidden="true"
+				size={16}
+				strokeWidth={2}
+				className="splat-viewer-spinner"
+			/>
+			<span>{label}</span>
+		</div>
+	);
 }
 
 async function reportWidgetErrorToServer(
@@ -244,7 +263,7 @@ export default function SplatViewerWidget(): React.ReactElement {
 			<McpUseProvider autoSize>
 				<div className={panelStyleClassName}>
 					<div className="splat-viewer-loading-overlay">
-						Preparing splat viewer...
+						<ViewerLoadingMessage label="Preparing splat viewer..." />
 					</div>
 				</div>
 			</McpUseProvider>
@@ -299,7 +318,7 @@ export default function SplatViewerWidget(): React.ReactElement {
 					/>
 					{isModelLoading && (
 						<div className="splat-viewer-loading-overlay">
-							Loading PLY model...
+							<ViewerLoadingMessage label="Loading PLY model..." />
 						</div>
 					)}
 					{viewerErrorMessage && (

@@ -1,3 +1,4 @@
+import { LoadingIndicator } from "@openai/apps-sdk-ui/components/Indicator";
 import {
 	McpUseProvider,
 	useCallTool,
@@ -113,6 +114,28 @@ interface WidgetErrorReportContext {
 	assetUrl?: string;
 	displayName?: string;
 	additionalContext?: Record<string, unknown>;
+}
+
+interface SpinnerWithLabelProps {
+	spinnerClassName?: string;
+	label: string;
+}
+
+function SpinnerWithLabel({
+	spinnerClassName,
+	label,
+}: SpinnerWithLabelProps): React.ReactElement {
+	return (
+		<>
+			<LoadingIndicator
+				aria-hidden="true"
+				size={14}
+				strokeWidth={2}
+				className={`splat-upload-spinner${spinnerClassName ? ` ${spinnerClassName}` : ""}`}
+			/>
+			<span>{label}</span>
+		</>
+	);
 }
 
 async function reportWidgetErrorToServer(
@@ -431,7 +454,11 @@ export default function SplatUploadWidget(): React.ReactElement {
 	if (isPending) {
 		return (
 			<McpUseProvider autoSize>
-				<div className={rootClassName}>Preparing upload widget...</div>
+				<div className={rootClassName}>
+					<div className="splat-upload-loading-inline">
+						<SpinnerWithLabel label="Preparing upload widget..." />
+					</div>
+				</div>
 			</McpUseProvider>
 		);
 	}
@@ -675,17 +702,31 @@ export default function SplatUploadWidget(): React.ReactElement {
 						type="submit"
 						disabled={uploadInProgress || !selectedUploadFile}
 					>
-						{uploadInProgress
-							? "Processing..."
-							: selectedUploadAssetType === "image"
-								? "Upload and Generate Splat"
-								: "Upload and Open Viewer"}
+						{uploadInProgress ? (
+							<span className="splat-upload-button-content">
+								<SpinnerWithLabel
+									spinnerClassName="splat-upload-spinner-button"
+									label="Processing..."
+								/>
+							</span>
+						) : selectedUploadAssetType === "image" ? (
+							"Upload and Generate Splat"
+						) : (
+							"Upload and Open Viewer"
+						)}
 					</button>
 				</form>
 
 				{statusMessage.length > 0 && (
 					<div className="splat-upload-status splat-upload-status-success">
-						{statusMessage}
+						{uploadInProgress ? (
+							<SpinnerWithLabel
+								spinnerClassName="splat-upload-spinner-status"
+								label={statusMessage}
+							/>
+						) : (
+							statusMessage
+						)}
 					</div>
 				)}
 				{errorMessage.length > 0 && (
@@ -705,7 +746,7 @@ export default function SplatUploadWidget(): React.ReactElement {
 						/>
 						{isInlineViewerLoading && (
 							<div className="splat-upload-inline-viewer-overlay">
-								Loading PLY model...
+								<SpinnerWithLabel label="Loading PLY model..." />
 							</div>
 						)}
 						{inlineViewerErrorMessage && (

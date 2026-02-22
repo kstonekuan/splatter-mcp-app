@@ -1,9 +1,9 @@
 {
-	"name": "manufact-hack",
+	"name": "splatter-mcp-app",
 	"private": true,
 	"type": "module",
 	"version": "1.0.0",
-	"description": "MCP server: manufact-hack",
+	"description": "MCP server: splatter-mcp-app",
 	"author": "",
 	"license": "MIT",
 	"keywords": [

@@ -2,8 +2,8 @@ import { MCPServer } from "mcp-use/server";
 import { registerSplatFeatures } from "./src/server/bootstrap/registerSplatFeatures";
 
 const server = new MCPServer({
-	name: "manufact-hack",
-	title: "manufact-hack", // display name
+	name: "splatter-mcp-app",
+	title: "splatter-mcp-app", // display name
 	version: "1.0.0",
 	description: "MCP server with MCP Apps integration",
 	baseUrl: process.env["MCP_URL"] || "http://localhost:3000", // Full base URL (e.g., https://myserver.com)

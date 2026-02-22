@@ -105,6 +105,13 @@
 	cursor: pointer;
 }
 
+.splat-upload-button-content,
+.splat-upload-loading-inline {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
 .splat-upload-button:hover:enabled {
 	background: #146bb8;
 }
@@ -117,6 +124,9 @@
 .splat-upload-status {
 	margin-top: 10px;
 	font-size: 13px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .splat-upload-status.splat-upload-status-error {
@@ -158,6 +168,7 @@
 	background: rgb(14 18 24 / 52%);
 	color: #e8eef7;
 	font-size: 13px;
+	gap: 8px;
 }
 
 .splat-upload-inline-viewer-overlay.splat-upload-inline-viewer-overlay-error {
@@ -172,4 +183,24 @@
 .splat-upload-theme-dark .splat-upload-inline-viewer-title {
 	background: rgb(9 14 20 / 76%);
 	border-bottom-color: rgb(184 212 243 / 18%);
+}
+
+.splat-upload-spinner {
+	color: #1f2933;
+}
+
+.splat-upload-spinner.splat-upload-spinner-button {
+	color: #ffffff;
+}
+
+.splat-upload-spinner.splat-upload-spinner-status {
+	color: #1e88e5;
+}
+
+.splat-upload-inline-viewer-overlay .splat-upload-spinner {
+	color: #e8eef7;
+}
+
+.splat-upload-theme-dark .splat-upload-spinner {
+	color: #d8e0ea;
 }

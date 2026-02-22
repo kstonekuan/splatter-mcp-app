@@ -64,6 +64,16 @@
 	text-align: center;
 }
 
+.splat-viewer-loading-content {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.splat-viewer-spinner {
+	color: #334155;
+}
+
 .splat-viewer-error-overlay {
 	color: #b91c1c;
 }
