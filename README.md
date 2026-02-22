@@ -6,6 +6,8 @@ MCP app built with `mcp-use` for 3D Gaussian splatting.
 
 This app is a lightweight spatial review layer for teams that need to move from source media to interactive 3D quickly.
 
+![Splatter MCP App preview](docs/images/splatter-mcp-app-preview.png)
+
 Best fit for:
 
 - Media and virtual production teams
