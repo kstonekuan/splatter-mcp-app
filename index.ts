@@ -1,5 +1,5 @@
 import { MCPServer } from "mcp-use/server";
-import { registerSplatFeatures } from "./src/server/bootstrap/registerSplatFeatures";
+import { registerSplatFeatures } from "./src/server/bootstrap/registerSplatFeatures.js";
 
 const server = new MCPServer({
 	name: "splatter-mcp-app",
@@ -20,6 +20,7 @@ const server = new MCPServer({
 
 try {
 	await registerSplatFeatures(server);
+	server.listen();
 } catch (startupError) {
 	console.error("Failed to register MCP server features:", startupError);
 	throw startupError;

@@ -1,5 +1,5 @@
 import type { MCPServer } from "mcp-use/server";
-import { logSplatError, logSplatInfo } from "../services/splatLogger";
+import { logSplatError, logSplatInfo } from "../services/splatLogger.js";
 
 interface WidgetErrorReportPayload {
 	widgetName?: unknown;

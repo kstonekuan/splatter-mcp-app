@@ -1,14 +1,14 @@
 import { randomUUID } from "node:crypto";
 import type { MCPServer } from "mcp-use/server";
-import { modalInferenceClient } from "../services/modalInferenceClient";
-import { validateLikelyGaussianSplatPly } from "../services/plySplatValidation";
+import { modalInferenceClient } from "../services/modalInferenceClient.js";
+import { validateLikelyGaussianSplatPly } from "../services/plySplatValidation.js";
 import {
 	logSplatError,
 	logSplatInfo,
 	logSplatWarning,
-} from "../services/splatLogger";
-import { temporaryArtifactStore } from "../services/tempArtifactStore";
-import type { AllowedGpuTier } from "../types/splat";
+} from "../services/splatLogger.js";
+import { temporaryArtifactStore } from "../services/tempArtifactStore.js";
+import type { AllowedGpuTier } from "../types/splat.js";
 
 type ImageGenerationJobStatus = "queued" | "running" | "succeeded" | "failed";
 

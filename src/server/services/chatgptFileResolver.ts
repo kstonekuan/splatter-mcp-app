@@ -5,8 +5,8 @@ import type {
 	GenerateSplatFromImageInput,
 	ResolvedInputBytes,
 	ViewPlySplatInput,
-} from "../types/splat";
-import { validateLikelyGaussianSplatPly } from "./plySplatValidation";
+} from "../types/splat.js";
+import { validateLikelyGaussianSplatPly } from "./plySplatValidation.js";
 
 const DEFAULT_MAXIMUM_PLY_BYTES = 200 * 1024 * 1024;
 const DEFAULT_MAXIMUM_IMAGE_BYTES = 20 * 1024 * 1024;

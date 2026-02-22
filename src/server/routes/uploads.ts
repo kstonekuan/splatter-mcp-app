@@ -1,7 +1,7 @@
 import type { MCPServer } from "mcp-use/server";
-import { validateLikelyGaussianSplatPly } from "../services/plySplatValidation";
-import { logSplatInfo } from "../services/splatLogger";
-import { temporaryArtifactStore } from "../services/tempArtifactStore";
+import { validateLikelyGaussianSplatPly } from "../services/plySplatValidation.js";
+import { logSplatInfo } from "../services/splatLogger.js";
+import { temporaryArtifactStore } from "../services/tempArtifactStore.js";
 
 const DEFAULT_MAXIMUM_UPLOAD_PLY_BYTES = 200 * 1024 * 1024;
 const DEFAULT_MAXIMUM_UPLOAD_IMAGE_BYTES = 20 * 1024 * 1024;

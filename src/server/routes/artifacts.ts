@@ -1,6 +1,6 @@
 import type { MCPServer } from "mcp-use/server";
-import { logSplatInfo, logSplatWarning } from "../services/splatLogger";
-import { temporaryArtifactStore } from "../services/tempArtifactStore";
+import { logSplatInfo, logSplatWarning } from "../services/splatLogger.js";
+import { temporaryArtifactStore } from "../services/tempArtifactStore.js";
 
 let hasRegisteredArtifactRoutes = false;
 

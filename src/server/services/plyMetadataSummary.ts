@@ -1,4 +1,4 @@
-import type { SplatViewerMetadata } from "../types/splat";
+import type { SplatViewerMetadata } from "../types/splat.js";
 
 interface PlyPropertyDescriptor {
 	name: string;

@@ -8,7 +8,7 @@ import {
 	writeFile,
 } from "node:fs/promises";
 import { isAbsolute, join, resolve } from "node:path";
-import type { StoredArtifact } from "../types/splat";
+import type { StoredArtifact } from "../types/splat.js";
 
 const DEFAULT_ARTIFACT_DIRECTORY = ".mcp-use/artifacts";
 const DEFAULT_ARTIFACT_TTL_SECONDS = 3600;

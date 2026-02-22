@@ -1,5 +1,5 @@
-import type { AllowedGpuTier, GeneratedSplatResult } from "../types/splat";
-import { logSplatDebug, logSplatError } from "./splatLogger";
+import type { AllowedGpuTier, GeneratedSplatResult } from "../types/splat.js";
+import { logSplatDebug, logSplatError } from "./splatLogger.js";
 
 const DEFAULT_MODAL_INFERENCE_TIMEOUT_MILLISECONDS = 300_000;
 

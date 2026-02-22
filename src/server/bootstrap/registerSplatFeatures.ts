@@ -1,12 +1,12 @@
 import type { MCPServer } from "mcp-use/server";
-import { registerSplatArtifactRoutes } from "../routes/artifacts";
-import { registerImageGenerationJobRoutes } from "../routes/imageGenerationJobs";
-import { registerSplatUploadRoutes } from "../routes/uploads";
-import { registerWidgetDiagnosticsRoutes } from "../routes/widgetDiagnostics";
-import { temporaryArtifactStore } from "../services/tempArtifactStore";
-import { registerGenerateSplatFromImageTool } from "../tools/generateSplatFromImageTool";
-import { registerOpenPlyUploadTool } from "../tools/openPlyUploadTool";
-import { registerViewPlySplatTool } from "../tools/viewPlySplatTool";
+import { registerSplatArtifactRoutes } from "../routes/artifacts.js";
+import { registerImageGenerationJobRoutes } from "../routes/imageGenerationJobs.js";
+import { registerSplatUploadRoutes } from "../routes/uploads.js";
+import { registerWidgetDiagnosticsRoutes } from "../routes/widgetDiagnostics.js";
+import { temporaryArtifactStore } from "../services/tempArtifactStore.js";
+import { registerGenerateSplatFromImageTool } from "../tools/generateSplatFromImageTool.js";
+import { registerOpenPlyUploadTool } from "../tools/openPlyUploadTool.js";
+import { registerViewPlySplatTool } from "../tools/viewPlySplatTool.js";
 
 let hasRegisteredSplatFeatures = false;
 

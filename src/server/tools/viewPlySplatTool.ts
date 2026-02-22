@@ -1,14 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { error, type MCPServer, text, widget } from "mcp-use/server";
-import { resolvePlyInputBytes } from "../services/chatgptFileResolver";
-import { summarizePlyMetadata } from "../services/plyMetadataSummary";
-import { logSplatInfo } from "../services/splatLogger";
-import { temporaryArtifactStore } from "../services/tempArtifactStore";
+import { resolvePlyInputBytes } from "../services/chatgptFileResolver.js";
+import { summarizePlyMetadata } from "../services/plyMetadataSummary.js";
+import { logSplatInfo } from "../services/splatLogger.js";
+import { temporaryArtifactStore } from "../services/tempArtifactStore.js";
 import {
 	type SplatViewerProps,
 	splatViewerPropsSchema,
 	viewPlySplatInputSchema,
-} from "../types/splat";
+} from "../types/splat.js";
 
 function inferDisplayName(
 	resolvedFilename: string,

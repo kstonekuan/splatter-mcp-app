@@ -1,20 +1,20 @@
 import { randomUUID } from "node:crypto";
 import { error, type MCPServer, text, widget } from "mcp-use/server";
-import { resolveImageInputBytes } from "../services/chatgptFileResolver";
-import { modalInferenceClient } from "../services/modalInferenceClient";
-import { summarizePlyMetadata } from "../services/plyMetadataSummary";
-import { validateLikelyGaussianSplatPly } from "../services/plySplatValidation";
+import { resolveImageInputBytes } from "../services/chatgptFileResolver.js";
+import { modalInferenceClient } from "../services/modalInferenceClient.js";
+import { summarizePlyMetadata } from "../services/plyMetadataSummary.js";
+import { validateLikelyGaussianSplatPly } from "../services/plySplatValidation.js";
 import {
 	logSplatDebug,
 	logSplatError,
 	logSplatInfo,
-} from "../services/splatLogger";
-import { temporaryArtifactStore } from "../services/tempArtifactStore";
+} from "../services/splatLogger.js";
+import { temporaryArtifactStore } from "../services/tempArtifactStore.js";
 import {
 	generateSplatFromImageInputSchema,
 	type SplatViewerProps,
 	splatViewerPropsSchema,
-} from "../types/splat";
+} from "../types/splat.js";
 
 function determineGeneratedDisplayName(
 	explicitDisplayName: string | undefined,

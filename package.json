@@ -22,7 +22,7 @@
 	],
 	"main": "dist/index.js",
 	"scripts": {
-		"build": "mcp-use build",
+		"build": "mcp-use build && tsc -p tsconfig.build.json",
 		"dev": "mcp-use dev",
 		"start": "mcp-use start",
 		"deploy": "mcp-use deploy",
