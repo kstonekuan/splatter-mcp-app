@@ -6,18 +6,17 @@ Built with [`mcp-use`](https://github.com/mcp-use/mcp-use) and [`ml-sharp`](http
 
 🏆 Finalist at the [YC MCP Apps Hackathon by Manufact](https://events.ycombinator.com/manufact-hackathon26).
 
-## Introduction
-
-This app is a lightweight spatial review layer for teams that need to move from source media to interactive 3D quickly.
-
 ![Splatter MCP App preview](docs/images/splatter-mcp-app-preview.png)
 
-Best fit for:
+## Introduction
 
-- Media and virtual production teams
-- Design and creative studios
-- Architecture / AEC teams
-- Real estate and experience design teams
+This is great for teams to move from source media to interactive 3D quickly
+
+- Advertising
+- Media and film
+- Creative design
+- Architecture
+- Real estate
 
 ## Features
 
