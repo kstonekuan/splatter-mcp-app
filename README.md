@@ -1,6 +1,10 @@
 # Splatter MCP App
 
-MCP app built with `mcp-use` for 3D Gaussian splatting.
+MCP app for generating and viewing 3D models using 3D Gaussian Splatting
+
+Built with [`mcp-use`](https://github.com/mcp-use/mcp-use) and [`ml-sharp`](https://github.com/apple/ml-sharp).
+
+🏆 Finalist at the [YC MCP Apps Hackathon by Manufact](https://events.ycombinator.com/manufact-hackathon26).
 
 ## Introduction
 
@@ -18,9 +22,11 @@ Best fit for:
 ## Features
 
 - Upload `.ply` and view instantly in an interactive widget.
-- Upload an image and generate a splat via Modal (async job flow).
-- View from URL or ChatGPT attachment references.
-- Artifact hosting with TTL and diagnostic logging for failures.
+- Upload an image and use 3DGS via Modal (async job flow).
+
+ChatGPT image generation to 3DGS example:
+
+![ChatGPT generating an F1 car image](docs/images/chatgpt.gif)
 
 ## Tools Exposed
 
@@ -67,12 +73,3 @@ uv run ruff check --fix
 uv run ruff format
 uv run ty check
 ```
-
-## Troubleshooting
-
-- Viewer not opening after generation: check logs for
-  - `[splat-error] widget-client-error`
-  - `[splat-warning] artifact-get-not-found`
-  - `[splat-info] image-generation-job-succeeded`
-- Wrong asset URLs in widgets/tools: set `MCP_URL` to the externally reachable base URL.
-- Tunnel subdomain conflict: stop old tunnel processes and restart.
